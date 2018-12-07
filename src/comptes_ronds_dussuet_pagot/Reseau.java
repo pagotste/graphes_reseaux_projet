@@ -4,59 +4,68 @@ import java.util.ArrayList;
 
 public class Reseau {
 	
-	ArrayList<Sommet> reseau;
-	ArrayList<Sommet> reseau_residuel;
+	ArrayList<Sommet> sommets;
+	ArrayList <ArrayList<Integer>> min;
+	ArrayList <ArrayList<Integer>> capacite;
+	ArrayList <ArrayList<Integer>> flot;
 	
 	//Constructeur
 	Reseau(){
-		this.reseau = new ArrayList<Sommet>();
-		this.reseau_residuel= new ArrayList<Sommet>();
+		this.sommets = new ArrayList<Sommet>();
+		this.min = new ArrayList <ArrayList<Integer>>();
+		this.capacite = new ArrayList <ArrayList<Integer>>();
+		this.flot = new ArrayList <ArrayList<Integer>>();
 	}
 	
-	//Cree un reseau residuel a partir d'un graphe
-	void cree_resi(Reseau reseau){
-		ArrayList<Sommet> residuel = new ArrayList<Sommet>();
-		
-		this.reseau_residuel = residuel;
+	//Remplit une matrice de 0
+	static ArrayList <ArrayList<Integer>> init_matrix(ArrayList <ArrayList<Integer>> liste, int size) {
+		for (int i = 0; i <size;i++) {
+			liste.add(new ArrayList<Integer>());
+			for(int j = 0; j<size;j++) {
+				liste.get(i).add(null);
+			}
+		}
+		return liste;
 	}
+	
 	
 	//Met a jour un reseau residuel
-	void update_resi(Reseau reseau){
-		ArrayList<Sommet> residuel = new ArrayList<Sommet>();
+	void update_resi(Reseau reseau, Sommet u, Sommet v){
 		
-		this.reseau_residuel = residuel;
+//		
 	}
 	
-	
-	
+
 	//Preflots
 	//Initialise le graphe pour la methode des preflots
-	static void initialiser_preflot(ArrayList<Sommet> G, Sommet source) {
-		for (Sommet u : G) {
+	static void initialiser_preflot(Reseau G, Sommet source) {
+		for (Sommet u : G.sommets) {
 			u.hauteur = 0;
 			u.excedent = 0;
 		}
-		source.hauteur = G.size();
+		G.sommets.get(0).hauteur = G.sommets.size();
 		
-		for (Sommet u : G) {
-			for (Arc arc : u.successeurs) {
-				arc.flot = 0;
-			}
-			
-			for (Arc inverse : u.inverse) {
-				inverse.flot = 0;
+		for (int i = 0;i<G.sommets.size();i++) {
+			for(int j=0;j<G.sommets.size();j++) {
+				if(G.capacite.get(i).get(j) != null) {
+					G.flot.get(i).set(j, 0);
+					G.flot.get(j).set(i, 0);
+				}
 			}
 		}
+
 		
-		for(Arc arc : source.successeurs) {
-			//f(source,u) = 0
-			arc.flot = arc.capacite;
-			
-			//f(u,source) = 0
-			arc.s_arrivee.inverse.getFirst().flot = -arc.capacite; //On considere que la source est le 1er elem. de la liste d'inverse
-			
-			arc.s_arrivee.excedent = arc.capacite;
-			source.excedent = source.excedent - arc.capacite;
+		for(int i=1;i<G.sommets.size();i++) {
+			Integer capa = G.capacite.get(0).get(i);
+			if(capa != null) {
+				//f(source,u) = 0;
+				G.flot.get(0).set(i, capa);
+				//f(u,source) = 0
+				G.flot.get(i).set(0, -capa);
+				
+				G.sommets.get(i).excedent=capa;
+				G.sommets.get(0).excedent = G.sommets.get(0).excedent - capa; 
+			}
 		}	
 	}
 	
@@ -97,67 +106,46 @@ public class Reseau {
 //		}
 //	}
 	
+	//TODO
 	void constructionEtape1() {
 		
 	}
 	
+	//TODO
 	void constructionEtape2() {
 			
 		}
 	
+	//TODO
 	void constructionEtape3() {
 		
 	}
 	
+	//TODO: import fichier + construction
 	//Construit le reseau modelisant le probleme Arrondis-2D comme un probleme d’arc-circulation a partir des donnees en entree
-	void constructionReseau() {
-		
+	 static Reseau constructionReseau() {
+		return new Reseau();
 	}
 	
-	//TODO
 	@Override
 	public String toString() {
 		String res = "";
-		
+		res = res+"Liste de sommets\n";
+		res = res + this.sommets.toString();
+		res = res + "\nMatrice min:\n";
+		res = res + "\n\nMatrice capacite:\n";
+		for(int i=0;i<this.sommets.size();i++) {
+			res = res + this.capacite.get(i).toString() + "\n";
+		}
+		res = res + "\n\nMatrice flots:\n";
+		for(int i=0;i<this.sommets.size();i++) {
+			res = res + this.flot.get(i).toString() + "\n";
+		}
+		/*res = res + "\n\nMatrice min:\n";
+		for(int i=0;i<this.sommets.size();i++) {
+			res = res + this.min.get(i).toString() + "\n";
+		}*/
+		res = res+"\nReseau residuel\n";
 		return res;
 	}
-	
-	public static void main(String[] args) {
-		ArrayList<Sommet> graphe = new ArrayList<Sommet>();
-		Sommet source = new Sommet("source",-28);
-		Sommet s1 = new Sommet("s1",2);
-		Sommet s2 = new Sommet("s2",3);
-		Sommet s3 = new Sommet("s3",5);
-		Sommet s4 = new Sommet("s4",4);
-		Sommet puits = new Sommet("puits",0);
-		
-		graphe.add(source);		graphe.add(s1);		graphe.add(s2);		graphe.add(s3);		graphe.add(s4);		graphe.add(puits);
-		
-		source.addSuccesseur(s1, 3, 5);
-		source.addSuccesseur(s2, 2, 6);
-		s1.addSuccesseur(s3, 1, 5);
-		s1.addSuccesseur(s4, 0, 5);
-		s2.addSuccesseur(s4, 5, 5);
-		s3.addSuccesseur(puits, 3, 7);
-		s4.addSuccesseur(puits, 4, 20);
-		
-		initialiser_preflot(graphe,source);
-		System.out.println("source:" + source.toString() + "->" + source.printSuccesseurs());
-		System.out.println("source:" + source.toString() + "->" + source.printInverse());
-		System.out.println("S1:" + s1.toString() + "->" + s1.printSuccesseurs());
-		System.out.println("S1:" + s1.toString() + "->" + s1.printInverse());
-		System.out.println("s2:" + s2.toString() + "->" + s2.printSuccesseurs());
-		System.out.println("S2:" + s2.toString() + "->" + s2.printInverse());
-		System.out.println("S3:" + s3.toString() + "->" + s3.printSuccesseurs());
-		System.out.println("S3:" + s3.toString() + "->" + s3.printInverse());
-		System.out.println("\nHauteur source = " + source.hauteur);
-		System.out.println("Excedent source = " + source.excedent);
-		System.out.println("\nHauteur S1 = " + s1.hauteur);
-		System.out.println("Excedent S1 = " + s1.excedent);
-		System.out.println("\nHauteur S2 = " + s2.hauteur);
-		System.out.println("Excedent S2 = " + s2.excedent);
-		System.out.println("\nHauteur S3 = " + s3.hauteur);
-		System.out.println("Excedent S3 = " + s3.excedent);
-		
 	}
-}
