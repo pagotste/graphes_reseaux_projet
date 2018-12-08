@@ -25,5 +25,8 @@ public class Programme {
 		Reseau.initialiser_preflot(graphe, graphe.sommets.get(0));
 		
 		System.out.println(graphe.toString());
+		System.out.println(Reseau.constructionReseau("dataset1.txt").toString());
+		System.out.println(Reseau.constructionReseau("dataset_exemple.txt").toString());
+		
 	}
 }
