@@ -173,14 +173,16 @@ public class Reseau {
 					// initialisation d'une variable pour les sommes des lignes
 					float s_ligne = 0;
 					
-					for (int i = nbli+1; i < t.length+nbli+1; i++) {
+					for (int i = 0; i < t.length; i++) {
 						float t_i = Float.parseFloat(t[i]);
 						s_ligne += t_i;
 						s_col[i] += t_i;
-						r.min.get(m_ligne).set(i, (int) Math.floor(t_i));
-						//r.min.get(i).set(i, element)
-						//r.capacite.get(m_ligne).set(i, (int) Math.ceil(t_i));
-						
+						// ajout min, capacite sur les arcs partantdes sommes des lignes vers les valeurs mij de la matrice
+						r.min.get(m_ligne).set((nbli)*m_ligne+1+i, (int) Math.floor(t_i));
+						r.capacite.get(m_ligne).set((nbli)*m_ligne+1+i, (int) Math.ceil(t_i));
+						// ajout min,capacite sur les arcs partant des valeurs mij de la matrice vers les sommes des colonnes
+						r.min.get((nbli)*m_ligne+1+i).set((size-1)-nbcol+i, (int) Math.floor(t_i));
+						r.capacite.get((nbli)*m_ligne+1+i).set((size-1)-nbcol+i, (int) Math.ceil(t_i));
 					}
 					// ajout min, capacite sur les arcs partant de la source sur les sommes des lignes
 					r.min.get(0).set(m_ligne, (int) Math.floor(s_ligne));
@@ -190,9 +192,9 @@ public class Reseau {
 					m_ligne++;
 				}
 				// ajout min, capacite sur les arcs partant des sommes des colonnes vers le puits
-				for(int i =0; i<nbcol;i++) {
-					r.min.get(i).set(size-1,(int) Math.floor(s_col[i]));
-					r.capacite.get(i).set(size-1,(int) Math.ceil(s_col[i]));
+				for(int i = 0; i<nbcol;i++) {
+					r.min.get((size-1)-nbcol+i).set(size-1,(int) Math.floor(s_col[i]));
+					r.capacite.get((size-1)-nbcol+i).set(size-1,(int) Math.ceil(s_col[i]));
 				}
 				
 				// arrêt de la lecture du fichier
@@ -215,14 +217,19 @@ public class Reseau {
 		for(int i=0;i<this.sommets.size();i++) {
 			res = res + this.capacite.get(i).toString() + "\n";
 		}
-		res = res + "\n\nMatrice flots:\n";
-		for(int i=0;i<this.sommets.size();i++) {
-			res = res + this.flot.get(i).toString() + "\n";
+		if(this.flot.size()!=0) {
+			res = res + "\n\nMatrice flots:\n";
+			for(int i=0;i<this.sommets.size();i++) {
+				res = res + this.flot.get(i).toString() + "\n";
+			}
 		}
-		/*res = res + "\n\nMatrice min:\n";
-		for(int i=0;i<this.sommets.size();i++) {
-			res = res + this.min.get(i).toString() + "\n";
-		}*/
+		if(this.min.size()!=0) {
+			res = res + "\n\nMatrice min:\n";
+			for(int i=0;i<this.sommets.size();i++) {
+				res = res + this.min.get(i).toString() + "\n";
+			}
+		}
+		
 		res = res+"\nReseau residuel\n";
 		return res;
 	}
