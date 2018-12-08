@@ -1,6 +1,10 @@
 package comptes_ronds_dussuet_pagot;
 
 import java.util.ArrayList;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.lang.Math;
 
 public class Reseau {
 	
@@ -100,7 +104,7 @@ public class Reseau {
 //			
 			//elever
 			//u different de source et puis
-//			//precondition: excedent de u>0 et pour tout arc (u,v) v adjacent � u ds r�seau r�siduel, hauteur de u <= hauteur de v
+//			//precondition: excedent de u>0 et pour tout arc (u,v) v adjacent � u ds r�seau r�siduel, hauteur de u <= hauteur de v
 //			if(avancer && !elever) avancer(u,v);
 //			else if(!avancer && elever) elever(u);
 //		}
@@ -122,9 +126,83 @@ public class Reseau {
 	}
 	
 	//TODO: import fichier + construction
-	//Construit le reseau modelisant le probleme Arrondis-2D comme un probleme d�arc-circulation a partir des donnees en entree
-	 static Reseau constructionReseau() {
-		return new Reseau();
+	//Construit le reseau modelisant le probleme Arrondis-2D comme un probleme d�arc-circulation a partir des donnees en entree
+	static Reseau constructionReseau(String nomfichier) {
+		//Variables
+			int nbli = 0,nbcol;
+			Reseau r = new Reseau();
+			// lecture du fichier texte et traitement des données
+			try {
+				FileReader f = new FileReader(nomfichier);
+				BufferedReader b = new BufferedReader(f);
+				nbli = Integer.parseInt(b.readLine());
+				nbcol = Integer.parseInt(b.readLine());
+				
+				// ajout des sommets dans le graphe
+				r.sommets.add(new Sommet("source",0));
+				for (int i=1; i<nbli+1;i++) {
+					r.sommets.add(new Sommet("somme_l"+String.valueOf(i),0));
+				}
+				for (int i=1;i<nbli+1;i++) {
+					for(int j=1;j<nbcol+1;j++) {
+						r.sommets.add(new Sommet("m"+String.valueOf(i)+String.valueOf(j),0));
+					}
+				}
+				for (int i=1; i<nbcol+1;i++) {
+					r.sommets.add(new Sommet("somme_c"+String.valueOf(i),0));
+				}
+				r.sommets.add(new Sommet("puits",0));
+				
+				
+				int size = nbli*nbcol+nbli+nbcol+2;
+				
+				r.min = Reseau.init_matrix(r.min,size);
+				r.capacite = Reseau.init_matrix(r.capacite,size);
+				String ligne;
+				// le numéro de la première ligne 
+				int m_ligne = 1;
+				ligne = b.readLine();
+				
+				// initialisation d'un  tableau de somme des colonnes 
+				float[] s_col = new float[nbcol];
+				
+				
+				// ajout des min, capacite sur les arcs du graphe
+				while( !ligne.equals(".") && (ligne != null)  ) {
+					String[] t = ligne.split(" ");
+					// initialisation d'une variable pour les sommes des lignes
+					float s_ligne = 0;
+					
+					for (int i = nbli+1; i < t.length+nbli+1; i++) {
+						float t_i = Float.parseFloat(t[i]);
+						s_ligne += t_i;
+						s_col[i] += t_i;
+						r.min.get(m_ligne).set(i, (int) Math.floor(t_i));
+						//r.min.get(i).set(i, element)
+						//r.capacite.get(m_ligne).set(i, (int) Math.ceil(t_i));
+						
+					}
+					// ajout min, capacite sur les arcs partant de la source sur les sommes des lignes
+					r.min.get(0).set(m_ligne, (int) Math.floor(s_ligne));
+					r.capacite.get(0).set(m_ligne, (int) Math.ceil(s_ligne));
+					// passage à la ligne suivante et lecture de la ligne suivante
+					ligne = b.readLine();
+					m_ligne++;
+				}
+				// ajout min, capacite sur les arcs partant des sommes des colonnes vers le puits
+				for(int i =0; i<nbcol;i++) {
+					r.min.get(i).set(size-1,(int) Math.floor(s_col[i]));
+					r.capacite.get(i).set(size-1,(int) Math.ceil(s_col[i]));
+				}
+				
+				// arrêt de la lecture du fichier
+				b.close();
+				f.close();
+			}catch (IOException e) {
+				e.printStackTrace();
+			}
+		// retourne le réseau construit avec les données du fichier si pas d'erreur sinon un réseau vide
+		return r;
 	}
 	
 	@Override
