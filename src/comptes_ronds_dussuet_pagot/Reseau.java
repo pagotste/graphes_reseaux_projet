@@ -300,7 +300,7 @@ public class Reseau {
 				res = res + this.capacite.get(i).toString() + "\n";
 			}
 		}
-		/*
+		
 		if(this.flot.size()!=0) {
 			res = res + "\n\nMatrice flots:\n";
 			for(int i=0;i<this.sommets.size();i++) {
@@ -313,7 +313,7 @@ public class Reseau {
 				res = res + this.min.get(i).toString() + "\n";
 			}
 		}
-		*/
+		
 		return res;
 	}
 }
