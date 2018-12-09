@@ -36,8 +36,14 @@ public class Programme {
 //		System.out.println("\nReseau residuel:\n" + residuel.toString());
 		//System.out.println(Reseau.constructionReseau("dataset1.txt").toString());
 		//System.out.println(Reseau.constructionReseau("dataset_exemple.txt").toString());
-		//Reseau test = Reseau.constructionReseau("dataset_exemple.txt");
-		//test.constructionEtape1(80);
-		
+		/*Reseau test = Reseau.constructionReseau("dataset_exemple.txt");
+		test.constructionEtape2();
+		// somme des demandes des sommets
+		int somme = 0;
+		for(int i = 0; i < test.sommets.size()-1;i++) {
+			somme += test.sommets.get(i).demande;
+		}
+		test.constructionEtape1(somme);
+		System.out.println(test.toString());*/
 	}
 }
