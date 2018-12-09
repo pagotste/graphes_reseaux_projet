@@ -234,7 +234,6 @@ public class Reseau {
 	
 	//TODO
 	void constructionEtape3() {
-		
 		int size = this.sommets.size();
 		int d_source = 0;
 		int d_puits = 0;
