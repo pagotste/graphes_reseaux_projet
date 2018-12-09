@@ -75,6 +75,15 @@ public class Reseau {
 	void set_capacite(int u, int v, Integer capacite) {
 		this.capacite.get(u).set(v, capacite);
 	}
+	
+	Integer get_min(int u, int v) {
+		return this.min.get(u).get(v);
+	}
+	
+	void set_min(int u, int v, Integer flot) {
+		this.min.get(u).set(v, flot);
+	}
+	
 	//sommet representes par le type sommet
 	
 	
@@ -93,7 +102,13 @@ public class Reseau {
 	void set_capacite(Sommet u, Sommet v, Integer capacite) {
 		this.capacite.get(this.sommets.indexOf(u)).set(this.sommets.indexOf(v), capacite);
 	}
+	Integer get_min(Sommet u, Sommet v) {
+		return this.min.get(this.sommets.indexOf(u)).get(this.sommets.indexOf(v));
+	}
 	
+	void set_min(Sommet u, Sommet v, Integer flot) {
+		this.min.get(this.sommets.indexOf(u)).set(this.sommets.indexOf(v), flot);
+	}
 	
 
 	//Preflots
@@ -187,7 +202,7 @@ public class Reseau {
 	//TODO
 	void constructionEtape2() {
 		//ajout de la nouvelle source des demandes négatives
-		this.sommets.add(0, new Sommet("s_dem_neg",-8));
+		this.sommets.add(0, new Sommet("s_dem_neg",0));
 		
 		
 		// ajout capacite sur les arcs partant de la nouvelle source vers les autres sommets
@@ -203,7 +218,7 @@ public class Reseau {
 		}
 		
 		// ajout du nouveau puits des demandes positives
-		this.sommets.add(new Sommet("s_dem_pos",10));
+		this.sommets.add(new Sommet("s_dem_pos",0));
 		
 		// ajout capacite sur les arcs partant des sommets vers le nouveau puits
 		for (int i=0;i<this.sommets.size()-1;i++){
@@ -219,7 +234,51 @@ public class Reseau {
 	
 	//TODO
 	void constructionEtape3() {
+		int size = this.sommets.size();
+		int d_source = 0;
+		int d_puits = 0;
+		for (int i=1; i<size-1;i++) {
+			Integer cap = this.get_capacite(0, i);
+			if(cap != null) {
+				int min = this.get_min(0, i);
+				this.set_capacite(0, i, cap-min);
+				this.sommets.get(i).demande -= min;
+				d_source += this.get_capacite(0, i);
+			}
+		}
 		
+		for (int i=1; i<size-1;i++) {
+			for(int j=0; j<size-1;j++) {
+				Integer cap = this.get_capacite(i, j);
+				if(cap != null) {
+					int min = this.get_min(i,j);
+					this.set_capacite(i, j, cap-min);
+					this.sommets.get(i).demande += min;
+					this.sommets.get(j).demande -= min;
+				}
+			}
+		}
+		for (int i=1; i<size-1;i++) {
+			Integer cap = this.get_capacite(i, size-1);
+			if(cap != null) {
+				int min = this.get_min(i, size-1);
+				this.set_capacite(i, size-1, cap-min);
+				this.sommets.get(i).demande += min;
+				d_puits += this.get_capacite(i, size-1);
+			}
+		}
+		
+		Integer cap = this.get_capacite(0, size-1);
+		if(cap != null) {
+			int min = this.get_min(0, size-1);
+			this.set_capacite(0, size-1, cap-min);
+			// nouvelle valeur de la capacite
+			cap = this.get_capacite(0, size-1);
+			d_source += cap;
+			d_puits += cap;
+		}
+		this.sommets.get(0).demande = -d_source;
+		this.sommets.get(size-1).demande = d_puits;
 	}
 	
 	//TODO: import fichier + construction
@@ -238,15 +297,15 @@ public class Reseau {
 				// ajout des sommets dans le graphe
 				r.sommets.add(new Sommet("source",0));
 				for (int i=1; i<nbli+1;i++) {
-					r.sommets.add(new Sommet("somme_l"+String.valueOf(i),1));
+					r.sommets.add(new Sommet("somme_l"+String.valueOf(i),0));
 				}
 				for (int i=1;i<nbli+1;i++) {
 					for(int j=1;j<nbcol+1;j++) {
-						r.sommets.add(new Sommet("m"+String.valueOf(i)+String.valueOf(j),1));
+						r.sommets.add(new Sommet("m"+String.valueOf(i)+String.valueOf(j),0));
 					}
 				}
 				for (int i=1; i<nbcol+1;i++) {
-					r.sommets.add(new Sommet("somme_c"+String.valueOf(i),1));
+					r.sommets.add(new Sommet("somme_c"+String.valueOf(i),0));
 				}
 				r.sommets.add(new Sommet("puits",0));
 				
@@ -314,20 +373,21 @@ public class Reseau {
 		
 		if(this.capacite.size()!=0) {
 			res = res + "\n\nMatrice capacite:\n";
-			for(int i=0;i<this.sommets.size();i++) {
+			for(int i=0;i<this.capacite.size();i++) {
 				res = res + this.capacite.get(i).toString() + "\n";
 			}
 		}
 		
 		if(this.flot.size()!=0) {
 			res = res + "\n\nMatrice flots:\n";
-			for(int i=0;i<this.sommets.size();i++) {
+			for(int i=0;i<this.flot.size();i++) {
 				res = res + this.flot.get(i).toString() + "\n";
 			}
 		}
+		
 		if(this.min.size()!=0) {
 			res = res + "\n\nMatrice min:\n";
-			for(int i=0;i<this.sommets.size();i++) {
+			for(int i=0;i<this.min.size();i++) {
 				res = res + this.min.get(i).toString() + "\n";
 			}
 		}
