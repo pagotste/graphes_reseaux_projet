@@ -219,14 +219,15 @@ public class Reseau {
 				// le numéro de la première ligne 
 				int m_ligne = 1;
 				ligne = b.readLine();
-				
+				ligne = ligne.replace(",", ".");
 				// initialisation d'un  tableau de somme des colonnes 
 				float[] s_col = new float[nbcol];
 				
 				
 				// ajout des min, capacite sur les arcs du graphe
 				while( !ligne.equals(".") && (ligne != null)  ) {
-					String[] t = ligne.split(" ");
+					// récupération des valeurs séparées par un ou plusieurs espaces dans un tableau de chaînes de caractères
+					String[] t = ligne.split("\\s+");
 					// initialisation d'une variable pour les sommes des lignes
 					float s_ligne = 0;
 					
@@ -246,6 +247,7 @@ public class Reseau {
 					r.capacite.get(0).set(m_ligne, (int) Math.ceil(s_ligne));
 					// passage à la ligne suivante et lecture de la ligne suivante
 					ligne = b.readLine();
+					ligne = ligne.replace(",", ".");
 					m_ligne++;
 				}
 				// ajout min, capacite sur les arcs partant des sommes des colonnes vers le puits
@@ -290,4 +292,5 @@ public class Reseau {
 		}
 		return res;
 	}
-	}
+}
+
