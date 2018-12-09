@@ -248,7 +248,7 @@ public class Reseau {
 		}
 		
 		for (int i=1; i<size-1;i++) {
-			for(int j=0; j<size-1;j++) {
+			for(int j=1; j<size-1;j++) {
 				Integer cap = this.get_capacite(i, j);
 				if(cap != null) {
 					int min = this.get_min(i,j);
