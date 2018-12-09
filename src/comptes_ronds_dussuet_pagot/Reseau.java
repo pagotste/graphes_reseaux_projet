@@ -1,6 +1,7 @@
 package comptes_ronds_dussuet_pagot;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -32,12 +33,67 @@ public class Reseau {
 		return liste;
 	}
 	
+	//Initialise un reseau residuel
+	@SuppressWarnings("unchecked") //pour le cast en ArrayList
+	Reseau create_resi() {
+		Reseau resi = new Reseau();
+		for (Sommet s : this.sommets) resi.sommets.add((Sommet)s.clone());
+		for (int i=0;i<this.capacite.size();i++) resi.capacite.add((ArrayList<Integer>)this.capacite.get(i).clone());
+		return resi;
+	}
 	
 	//Met a jour un reseau residuel
-	void update_resi(Reseau reseau, Sommet u, Sommet v){
-		
-//		
+	Reseau update_resi(Reseau res_resi, int u, int v){
+		int new_c = res_resi.get_capacite(u, v)-this.get_flot(u, v);
+		if(new_c == 0) {
+			res_resi.set_capacite(u, v, null);
+			res_resi.set_capacite(v, u, this.get_flot(u, v));
+		} else if (this.get_flot(u, v)==0) {
+			res_resi.set_capacite(u, v, this.get_capacite(u, v));
+			res_resi.set_capacite(v, u, null);
+		} else {
+			res_resi.set_capacite(u, v, new_c);
+			res_resi.set_capacite(v,u,this.get_flot(u, v));
+		}
+		return res_resi; 
 	}
+	
+	//Getter et setter
+	//sommet representes par des int
+	Integer get_flot(int u, int v) {
+		return this.flot.get(u).get(v);
+	}
+	
+	void set_flot(int u, int v, Integer flot) {
+		this.flot.get(u).set(v, flot);
+	}
+	
+	Integer get_capacite(int u, int v) {
+		return this.capacite.get(u).get(v);
+	}
+	
+	void set_capacite(int u, int v, Integer capacite) {
+		this.capacite.get(u).set(v, capacite);
+	}
+	//sommet representes par le type sommet
+	
+	
+	Integer get_flot(Sommet u, Sommet v) {
+		return this.flot.get(this.sommets.indexOf(u)).get(this.sommets.indexOf(v));
+	}
+	
+	void set_flot(Sommet u, Sommet v, Integer flot) {
+		this.flot.get(this.sommets.indexOf(u)).set(this.sommets.indexOf(v), flot);
+	}
+	
+	Integer get_capacite(Sommet u, Sommet v) {
+		return this.capacite.get(this.sommets.indexOf(u)).get(this.sommets.indexOf(v));
+	}
+	
+	void set_capacite(Sommet u, Sommet v, Integer capacite) {
+		this.capacite.get(this.sommets.indexOf(u)).set(this.sommets.indexOf(v), capacite);
+	}
+	
 	
 
 	//Preflots
@@ -74,41 +130,42 @@ public class Reseau {
 	}
 	
 	//Avance le flot sur un arc dans le graphe
-//	void avancer(Sommet u, Sommet v) {
-//		int df = min(u.excedent,residuel.capacite);
-//		arc.flot = arc.flot + df;
-//		inverse.flot = -arc.flot;
-//		u.excedent = u.excedent - df;
-//		v.excedent = v.excedent + df;
-//	}
+	void avancer(Reseau res_resi,Sommet u, Sommet v) {
+		int df = Math.min(u.excedent,res_resi.get_capacite(u, v));
+		this.set_flot(u, v, this.get_flot(u,v) + df);
+		this.set_flot(v, u, -this.get_flot(u, v));
+		u.excedent = u.excedent - df;
+		v.excedent = v.excedent + df;
+	}
 	
 	//Eleve la hauteur d'un sommet dans le graphe
-//	void elever(Sommet u) {
-//		//arc => reseau residuel
-//		int min = u.successeurs.getFirst().s_arrivee.hauteur;
-//		for(Arc arc : u.successeurs) min = Math.min(min,arc.s_arrivee.hauteur);
-//		u.hauteur = 1 + min;
-//	}
-//	
+	void elever(Reseau res_resi,Sommet u) {
+		ArrayList<Integer> h_list = new ArrayList<Integer>();
+		for (int i = 0; i<this.sommets.size();i++) {
+			if(this.get_capacite(this.sommets.indexOf(u), i) != null) h_list.add(this.sommets.get(i).hauteur);
+		}
+		int min = Collections.min(h_list);
+		u.hauteur = 1 + min;
+	}
+	
 	//Algorithme des preflots
-//	void preflot(ArrayList<Sommet> graphe, Sommet source, Sommet puits) {
-//		initialiser_preflot(graphe, source);
-//		boolean avancer = true;
-//		boolean elever = true;
-//		while(avancer || elever) { //tq une operation est applicable
-//			avancer = false;
-//			elever = false;
-//			/*algo: choix d'une operation applicable*/
-			//avancer
+	void preflot(Reseau graphe, Sommet source, Sommet puits) {
+		initialiser_preflot(graphe, source);
+		
+//		while(!end) { //tq une operation est applicable
+//			Sommet u = graphe.sommets.get(0);
+//			while()
+//			
+//			//avancer
 //			//precondition: excedent de u>0, capacite uv>0, hauteur u = hauteur de v +1 => avancer = true
 //			
-			//elever
-			//u different de source et puis
-//			//precondition: excedent de u>0 et pour tout arc (u,v) v adjacent � u ds r�seau r�siduel, hauteur de u <= hauteur de v
+//			//elever
+//			//u different de source et puis
+//			//precondition: excedent de u>0 et pour tout arc (u,v) v adjacent a u ds reseau residuel, hauteur de u <= hauteur de v
 //			if(avancer && !elever) avancer(u,v);
 //			else if(!avancer && elever) elever(u);
 //		}
-//	}
+	}
 	
 	//TODO
 	void constructionEtape1() {
@@ -212,10 +269,12 @@ public class Reseau {
 		String res = "";
 		res = res+"Liste de sommets\n";
 		res = res + this.sommets.toString();
-		res = res + "\nMatrice min:\n";
-		res = res + "\n\nMatrice capacite:\n";
-		for(int i=0;i<this.sommets.size();i++) {
-			res = res + this.capacite.get(i).toString() + "\n";
+		
+		if(this.capacite.size()!=0) {
+			res = res + "\n\nMatrice capacite:\n";
+			for(int i=0;i<this.sommets.size();i++) {
+				res = res + this.capacite.get(i).toString() + "\n";
+			}
 		}
 		if(this.flot.size()!=0) {
 			res = res + "\n\nMatrice flots:\n";
@@ -229,8 +288,6 @@ public class Reseau {
 				res = res + this.min.get(i).toString() + "\n";
 			}
 		}
-		
-		res = res+"\nReseau residuel\n";
 		return res;
 	}
 	}

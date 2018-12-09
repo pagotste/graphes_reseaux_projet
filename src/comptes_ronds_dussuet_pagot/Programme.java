@@ -1,9 +1,9 @@
 package comptes_ronds_dussuet_pagot;
 
+
 public class Programme {
 	public static void main(String[] args) {
 		Reseau graphe = new Reseau();
-		//Reseau residuel = new Reseau();
 		graphe.sommets.add(new Sommet("source",-28));
 		graphe.sommets.add(new Sommet("s1",2));
 		graphe.sommets.add(new Sommet("s2",3));
@@ -22,11 +22,20 @@ public class Programme {
 		graphe.capacite.get(3).set(5,7);
 		graphe.capacite.get(4).set(5,20);
 		
-		Reseau.initialiser_preflot(graphe, graphe.sommets.get(0));
+		//Test reseau residuel
+//		Reseau residuel = graphe.create_resi();
+//		System.out.println("\nReseau residuel:\n" + residuel.toString());
+//		graphe.set_flot(0,1,0);
+//		residuel = graphe.update_resi(residuel,0,1);
+//		System.out.println("\nReseau residuel:\n" + residuel.toString());	
 		
-		System.out.println(graphe.toString());
-		System.out.println(Reseau.constructionReseau("dataset1.txt").toString());
-		System.out.println(Reseau.constructionReseau("dataset_exemple.txt").toString());
+		//Test initialiser preflots
+//		Reseau.initialiser_preflot(graphe, graphe.sommets.get(0));
+//		System.out.println("Reseau initial:\n" + graphe.toString());
+//		
+//		System.out.println("\nReseau residuel:\n" + residuel.toString());
+		//System.out.println(Reseau.constructionReseau("dataset1.txt").toString());
+		//System.out.println(Reseau.constructionReseau("dataset_exemple.txt").toString());
 		
 	}
 }
