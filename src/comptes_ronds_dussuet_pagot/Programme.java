@@ -36,6 +36,8 @@ public class Programme {
 //		System.out.println("\nReseau residuel:\n" + residuel.toString());
 		//System.out.println(Reseau.constructionReseau("dataset1.txt").toString());
 		//System.out.println(Reseau.constructionReseau("dataset_exemple.txt").toString());
+		//Reseau test = Reseau.constructionReseau("dataset_exemple.txt");
+		//test.constructionEtape1(80);
 		
 	}
 }
