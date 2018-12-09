@@ -186,11 +186,29 @@ public class Reseau {
 	
 	//TODO
 	void constructionEtape2() {
-		//ajout du nouveau puits somme des demandes
-		this.sommets.add(new Sommet("s_dem",0));
-		// ajout capacite sur les arcs partant des sommets vers le nouveau puits ( la sommes des demandes)
+		//ajout de la nouvelle source des demandes négatives
+		this.sommets.add(0, new Sommet("s_dem_neg",-8));
+		
+		
+		// ajout capacite sur les arcs partant de la nouvelle source vers les autres sommets
+		this.capacite.add(0,new ArrayList<Integer>());
+		for(int k = 1; k < this.sommets.size();k++) {
+			int demande = this.sommets.get(k).demande;
+			this.capacite.get(0).add((demande<0)? -demande : null );
+		}
+			
+		// ajout dans capacite de la nouvelle source en colonne
+		for(int j = 0; j< this.sommets.size();j++) {
+			this.capacite.get(j).add(0,null);
+		}
+		
+		// ajout du nouveau puits des demandes positives
+		this.sommets.add(new Sommet("s_dem_pos",10));
+		
+		// ajout capacite sur les arcs partant des sommets vers le nouveau puits
 		for (int i=0;i<this.sommets.size()-1;i++){
-			this.capacite.get(i).add(this.sommets.get(i).demande);
+			int demande = this.sommets.get(i).demande;
+			this.capacite.get(i).add((demande>0)? demande : null);
 		}
 		// ajout dans capacite du nouveau puits en ligne
 		this.capacite.add(new ArrayList<Integer>());
