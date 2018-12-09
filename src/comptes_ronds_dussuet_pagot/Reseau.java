@@ -168,8 +168,20 @@ public class Reseau {
 	}
 	
 	//TODO
-	void constructionEtape1() {
-		
+	void constructionEtape1(int v) {
+		// ajout du nouveau puits
+		this.sommets.add(new Sommet("puits_bis",0));
+		// ajout capacite du puits en colonne
+		for (int i=0;i<this.sommets.size()-1;i++){
+			this.capacite.get(i).add(null);
+		}
+		// ajout capacite de l'ancien puits au nouveau
+		this.capacite.get(this.sommets.size()-2).add(v);
+		// ajout dans capacite du puits en ligne
+		this.capacite.add(new ArrayList<Integer>());
+		for(int j = 0; j<this.sommets.size();j++) {
+			this.capacite.get(this.sommets.size()-1).add(null);
+		}
 	}
 	
 	//TODO
@@ -278,6 +290,7 @@ public class Reseau {
 				res = res + this.capacite.get(i).toString() + "\n";
 			}
 		}
+		
 		if(this.flot.size()!=0) {
 			res = res + "\n\nMatrice flots:\n";
 			for(int i=0;i<this.sommets.size();i++) {
@@ -290,6 +303,7 @@ public class Reseau {
 				res = res + this.min.get(i).toString() + "\n";
 			}
 		}
+		
 		return res;
 	}
 }
