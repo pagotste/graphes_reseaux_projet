@@ -172,10 +172,10 @@ public class Reseau {
 		// ajout du nouveau puits
 		this.sommets.add(new Sommet("puits_bis",0));
 		// ajout capacite du puits en colonne
-		for (int i=0;i<this.sommets.size()-1;i++){
+		for (int i=0;i<this.sommets.size()-2;i++){
 			this.capacite.get(i).add(null);
 		}
-		// ajout capacite de l'ancien puits au nouveau
+		// ajout capacite sur arc paratant de l'ancien puits vers le nouveau
 		this.capacite.get(this.sommets.size()-2).add(v);
 		// ajout dans capacite du puits en ligne
 		this.capacite.add(new ArrayList<Integer>());
@@ -186,8 +186,18 @@ public class Reseau {
 	
 	//TODO
 	void constructionEtape2() {
-			
+		//ajout du nouveau puits somme des demandes
+		this.sommets.add(new Sommet("s_dem",0));
+		// ajout capacite sur les arcs partant des sommets vers le nouveau puits ( la sommes des demandes)
+		for (int i=0;i<this.sommets.size()-1;i++){
+			this.capacite.get(i).add(this.sommets.get(i).demande);
 		}
+		// ajout dans capacite du nouveau puits en ligne
+		this.capacite.add(new ArrayList<Integer>());
+		for(int j = 0; j<this.sommets.size();j++) {
+			this.capacite.get(this.sommets.size()-1).add(null);
+		}
+	}
 	
 	//TODO
 	void constructionEtape3() {
@@ -210,15 +220,15 @@ public class Reseau {
 				// ajout des sommets dans le graphe
 				r.sommets.add(new Sommet("source",0));
 				for (int i=1; i<nbli+1;i++) {
-					r.sommets.add(new Sommet("somme_l"+String.valueOf(i),0));
+					r.sommets.add(new Sommet("somme_l"+String.valueOf(i),1));
 				}
 				for (int i=1;i<nbli+1;i++) {
 					for(int j=1;j<nbcol+1;j++) {
-						r.sommets.add(new Sommet("m"+String.valueOf(i)+String.valueOf(j),0));
+						r.sommets.add(new Sommet("m"+String.valueOf(i)+String.valueOf(j),1));
 					}
 				}
 				for (int i=1; i<nbcol+1;i++) {
-					r.sommets.add(new Sommet("somme_c"+String.valueOf(i),0));
+					r.sommets.add(new Sommet("somme_c"+String.valueOf(i),1));
 				}
 				r.sommets.add(new Sommet("puits",0));
 				
@@ -290,7 +300,7 @@ public class Reseau {
 				res = res + this.capacite.get(i).toString() + "\n";
 			}
 		}
-		
+		/*
 		if(this.flot.size()!=0) {
 			res = res + "\n\nMatrice flots:\n";
 			for(int i=0;i<this.sommets.size();i++) {
@@ -303,7 +313,7 @@ public class Reseau {
 				res = res + this.min.get(i).toString() + "\n";
 			}
 		}
-		
+		*/
 		return res;
 	}
 }
