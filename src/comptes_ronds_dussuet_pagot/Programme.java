@@ -33,6 +33,10 @@ public class Programme {
 //		Reseau.initialiser_preflot(graphe, graphe.sommets.get(0));
 //		System.out.println("Reseau initial:\n" + graphe.toString());
 //		
+		//Test preflot
+//		Reseau.preflot(graphe, graphe.sommets.get(0), graphe.sommets.get(graphe.sommets.size()-1));
+//		System.out.println("Reseau initial:\n" + graphe.toString());
+		
 //		System.out.println("\nReseau residuel:\n" + residuel.toString());
 		
 		//System.out.println(Reseau.constructionReseau("dataset1.txt").toString());

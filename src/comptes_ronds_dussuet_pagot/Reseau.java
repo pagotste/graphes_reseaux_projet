@@ -146,7 +146,9 @@ public class Reseau {
 	
 	//Avance le flot sur un arc dans le graphe
 	void avancer(Reseau res_resi,Sommet u, Sommet v) {
-		int df = Math.min(u.excedent,res_resi.get_capacite(u, v));
+		int index_u = this.sommets.indexOf(u);
+		int index_v = this.sommets.indexOf(v);
+		int df = Math.min(u.excedent,res_resi.get_capacite(index_u, index_v));
 		this.set_flot(u, v, this.get_flot(u,v) + df);
 		this.set_flot(v, u, -this.get_flot(u, v));
 		u.excedent = u.excedent - df;
@@ -164,25 +166,40 @@ public class Reseau {
 	}
 	
 	//Algorithme des preflots
+	//TODO : debug de update_resi
 	void preflot(Reseau graphe, Sommet source, Sommet puits) {
 		initialiser_preflot(graphe, source);
-		
-//		while(!end) { //tq une operation est applicable
-//			Sommet u = graphe.sommets.get(0);
-//			while()
-//			
-//			//avancer
-//			//precondition: excedent de u>0, capacite uv>0, hauteur u = hauteur de v +1 => avancer = true
-//			
-//			//elever
-//			//u different de source et puis
-//			//precondition: excedent de u>0 et pour tout arc (u,v) v adjacent a u ds reseau residuel, hauteur de u <= hauteur de v
-//			if(avancer && !elever) avancer(u,v);
-//			else if(!avancer && elever) elever(u);
-//		}
+		Reseau residuel = graphe.create_resi();
+		int  i=0;
+		Sommet u = graphe.sommets.get(i); 
+		while(u != null) { //tq une operation est applicable
+			if(u.excedent>0) {
+				int index_u = graphe.sommets.indexOf(u);
+				//avancer
+				for (int index_v = 0;index_v<graphe.sommets.size();index_v++) {
+					Sommet v = graphe.sommets.get(index_v);
+					if((graphe.get_capacite(u, v)!= null) && (graphe.get_capacite(u, v) > 0) && (u.hauteur == v.hauteur+1)) {
+						graphe.avancer(residuel,u,v); //precondition: excedent de u>0, capacite uv>0, hauteur u = hauteur de v +1
+						residuel = graphe.update_resi(residuel,index_u,index_v);
+					}
+				} 
+				//elever
+				if (u != source && u != puits){ //u different de source et puis
+					for(int index_v=0;index_v<graphe.sommets.size();index_v++) {
+						Sommet v= graphe.sommets.get(index_v) ;
+						if((residuel.get_capacite(u, v)!=null) && (u.hauteur <= v.hauteur)) {
+							graphe.elever(residuel,u); //precondition: excedent de u>0 et pour tout arc (u,v) v adjacent a u ds reseau residuel, hauteur de u <= hauteur de v
+						}
+					}
+				}
+			} else {
+				i++;
+				u=graphe.sommets.get(i);
+			}
+		}
 	}
 	
-	//TODO
+
 	void constructionEtape1(int v) {
 		// ajout du nouveau puits
 		this.sommets.add(new Sommet("puits_bis",0));
@@ -199,7 +216,7 @@ public class Reseau {
 		}
 	}
 	
-	//TODO
+
 	void constructionEtape2() {
 		//ajout de la nouvelle source des demandes négatives
 		this.sommets.add(0, new Sommet("s_dem_neg",0));
@@ -232,7 +249,7 @@ public class Reseau {
 		}
 	}
 	
-	//TODO
+
 	void constructionEtape3() {
 		int size = this.sommets.size();
 		int d_source = 0;
