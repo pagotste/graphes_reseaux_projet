@@ -2,6 +2,32 @@ package comptes_ronds_dussuet_pagot;
 
 
 public class Programme {
+	public static int nbli;
+	public static int nbcol;
+	
+	public String resultats(Reseau r) {
+		int size = r.sommets.size();
+		String res = "";
+		res = res+"Résultats des arrondis\n";
+		
+		res = res + "[ ";
+		
+		for(int k = 1 ; k < nbli+1;k++) {
+			for(int t= 0; t < nbcol; t++) {
+				res = res + (r.get_min(1+k, nbli+2*k+t)+r.get_flot(1+k, nbli+2*k+t)) +" ";
+			}
+		}
+		res = res + " sommes des lignes arrondies :\n";
+		for (int i = 1; i < nbli+1;i++) {
+			res = res + "ligne " + i + " :" + (r.get_min(1, 1+i)+ r.get_flot(1, 1+i)) + "\n";
+		}
+		res = res + " sommes des colonnes arrondies :\n";
+		for (int j = 1; j < nbcol+1;j++) {
+			res = res + "colonne " + j + " :" + (r.get_min(size-4-nbcol+j, size-3)+ r.get_flot(size-4-nbcol+j, size-3)) + "\n";
+		}
+		
+		return res;
+	}
 	public static void main(String[] args) {
 		Reseau graphe = new Reseau();
 		graphe.sommets.add(new Sommet("source",-28));
@@ -70,7 +96,9 @@ public class Programme {
 					reseau.constructionEtape1(somme_r);
 					Reseau.preflot(reseau, reseau.sommets.get(0), reseau.sommets.get(reseau.sommets.size()-1));
 					
+					resultats(reseau);
 				}*/
+		
 		
 	}
 }
