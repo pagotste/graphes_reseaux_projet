@@ -55,5 +55,22 @@ public class Programme {
 		}
 		test.constructionEtape1(somme);
 		System.out.println(test.toString());*/
+		//Programme de jeux de données
+				/*
+				if(args.length==0) {
+					Reseau reseau = Reseau.constructionReseau(args[0]);
+					reseau.constructionEtape3();
+					reseau.constructionEtape2();
+					// somme des demandes positives des sommets
+					int somme_r = 0;
+					for(int i = 0; i < reseau.sommets.size()-1;i++) {
+						int demande = reseau.sommets.get(i).demande;
+						somme_r += (demande>0) ? demande : 0 ;
+					}
+					reseau.constructionEtape1(somme_r);
+					Reseau.preflot(reseau, reseau.sommets.get(0), reseau.sommets.get(reseau.sommets.size()-1));
+					
+				}*/
+		
 	}
 }
