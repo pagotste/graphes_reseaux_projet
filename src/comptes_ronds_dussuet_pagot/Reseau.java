@@ -302,14 +302,20 @@ public class Reseau {
 	//Construit le reseau modelisant le probleme Arrondis-2D comme un probleme d�arc-circulation a partir des donnees en entree
 	static Reseau constructionReseau(String nomfichier) {
 		//Variables
-			int nbli = 0,nbcol;
+			
 			Reseau r = new Reseau();
 			// lecture du fichier texte et traitement des données
 			try {
 				FileReader f = new FileReader(nomfichier);
 				BufferedReader b = new BufferedReader(f);
-				nbli = Integer.parseInt(b.readLine());
-				nbcol = Integer.parseInt(b.readLine());
+				// enregistrement des valeurs du nombre de lignes et de colonnes
+				Programme.nbli = Integer.parseInt(b.readLine());
+				Programme.nbcol = Integer.parseInt(b.readLine());
+				
+				
+				int nbli = Programme.nbli;
+				int nbcol = Programme.nbcol;
+				
 				
 				// ajout des sommets dans le graphe
 				r.sommets.add(new Sommet("source",0));
