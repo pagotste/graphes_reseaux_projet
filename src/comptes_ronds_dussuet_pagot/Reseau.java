@@ -13,6 +13,7 @@ public class Reseau {
 	ArrayList <ArrayList<Integer>> min;
 	ArrayList <ArrayList<Integer>> capacite;
 	ArrayList <ArrayList<Integer>> flot;
+	ArrayList <ArrayList<Integer>> adjacence;
 	
 	//Constructeur
 	Reseau(){
@@ -20,9 +21,10 @@ public class Reseau {
 		this.min = new ArrayList <ArrayList<Integer>>();
 		this.capacite = new ArrayList <ArrayList<Integer>>();
 		this.flot = new ArrayList <ArrayList<Integer>>();
+		this.adjacence = new ArrayList <ArrayList<Integer>>();
 	}
 	
-	//Remplit une matrice de 0
+	//Remplit une matrice de null
 	static ArrayList <ArrayList<Integer>> init_matrix(ArrayList <ArrayList<Integer>> liste, int size) {
 		for (int i = 0; i <size;i++) {
 			liste.add(new ArrayList<Integer>());
@@ -33,30 +35,67 @@ public class Reseau {
 		return liste;
 	}
 	
+	static ArrayList <ArrayList<Integer>> init_matrix_zero(ArrayList <ArrayList<Integer>> liste, int size) {
+		for (int i = 0; i <size;i++) {
+			liste.add(new ArrayList<Integer>());
+			for(int j = 0; j<size;j++) {
+				liste.get(i).add(0);
+			}
+		}
+		return liste;
+	}
+	
 	//Initialise un reseau residuel
 	@SuppressWarnings("unchecked") //pour le cast en ArrayList
 	Reseau create_resi() {
 		Reseau resi = new Reseau();
 		for (Sommet s : this.sommets) resi.sommets.add((Sommet)s.clone());
-		for (int i=0;i<this.capacite.size();i++) resi.capacite.add((ArrayList<Integer>)this.capacite.get(i).clone());
+		for (int i = 0;i<this.capacite.size();i++) {
+			resi.capacite.add((ArrayList<Integer>)this.capacite.get(i).clone());
+			resi.adjacence.add((ArrayList<Integer>)this.adjacence.get(i).clone());
+		}
+		for (int i = 1;i<this.adjacence.size();i++) {
+			if (this.get_adj(0,i) == 1) {
+				resi = this.update_resi(resi,0,i);
+			}
+		}
 		return resi;
 	}
 	
 	//Met a jour un reseau residuel
 	Reseau update_resi(Reseau res_resi, int u, int v){
-		int new_c = res_resi.get_capacite(u, v)-this.get_flot(u, v);
-		if(new_c == 0) {
-			res_resi.set_capacite(u, v, null);
-			res_resi.set_capacite(v, u, this.get_flot(u, v));
-		} else if (this.get_flot(u, v)==0) {
-			res_resi.set_capacite(u, v, this.get_capacite(u, v));
-			res_resi.set_capacite(v, u, null);
-		} else {
-			res_resi.set_capacite(u, v, new_c);
+		//int new_c = res_resi.get_capacite(u, v)-this.get_flot(u, v);
+		if(this.get_flot(u, v) == res_resi.get_capacite(u, v)) { //ex: 12/12
+			res_resi.set_capacite(u, v, 0);
+			res_resi.set_adj(u,v,0);
+			if(this.get_adj(u, v) == 0) {
+				res_resi.set_capacite(v, u, this.get_capacite(v, u));
+			} else {
+				res_resi.set_capacite(v,u,this.get_capacite(u, v));
+			}
+			res_resi.set_adj(v, u, 1);
+		} else if (this.get_flot(u, v) == 0) {				//ex: 0/12
+			if(this.get_adj(u, v) == 0) {
+				res_resi.set_capacite(u, v, this.get_capacite(v, u));
+			} else {
+				res_resi.set_capacite(u, v, this.get_capacite(u, v));
+			}
+			res_resi.set_adj(u,v,1);
+			res_resi.set_capacite(v, u, 0);
+			res_resi.set_adj(v, u,0);
+		} else {											//ex: 10/12
+			if (this.get_adj(u,v) == 0) {
+				res_resi.set_capacite(u, v, this.get_capacite(v, u)-Math.abs(this.get_flot(u, v)));
+			} else {
+				res_resi.set_capacite(u, v,this.get_capacite(u, v)-Math.abs(this.get_flot(u, v)));
+			}
+			res_resi.set_adj(u,v,1);
 			res_resi.set_capacite(v,u,this.get_flot(u, v));
+			res_resi.set_adj(v, u,1);
 		}
 		return res_resi; 
 	}
+	
 	
 	//Getter et setter
 	//sommet representes par des int
@@ -84,6 +123,14 @@ public class Reseau {
 		this.min.get(u).set(v, flot);
 	}
 	
+	Integer get_adj(int u, int v) {
+		return this.adjacence.get(u).get(v);
+	}
+	
+	void set_adj(int u, int v, Integer adj) {
+		this.adjacence.get(u).set(v, adj);
+	}
+	
 	//sommet representes par le type sommet
 	
 	
@@ -95,9 +142,9 @@ public class Reseau {
 		this.flot.get(this.sommets.indexOf(u)).set(this.sommets.indexOf(v), flot);
 	}
 	
-	Integer get_capacite(Sommet u, Sommet v) {
-		return this.capacite.get(this.sommets.indexOf(u)).get(this.sommets.indexOf(v));
-	}
+//	Integer get_capacite(Sommet u, Sommet v) {
+//		return this.capacite.get(this.capacite.indexOf(u)).get(this.capacite.indexOf(v));
+//	}
 	
 	void set_capacite(Sommet u, Sommet v, Integer capacite) {
 		this.capacite.get(this.sommets.indexOf(u)).set(this.sommets.indexOf(v), capacite);
@@ -108,6 +155,24 @@ public class Reseau {
 	
 	void set_min(Sommet u, Sommet v, Integer flot) {
 		this.min.get(this.sommets.indexOf(u)).set(this.sommets.indexOf(v), flot);
+	}
+	
+	Integer get_adj(Sommet u, Sommet v) {
+		return this.adjacence.get(this.sommets.indexOf(u)).get(this.sommets.indexOf(v));
+	}
+	
+	void set_adj(Sommet u, Sommet v, Integer adj) {
+		this.adjacence.get(this.sommets.indexOf(u)).set(this.sommets.indexOf(v), adj);
+	}
+	
+	//Temporaire
+	//TODO : ajouter aux constructions reseau
+	void maj_adj() {
+		for (int i = 0; i<this.capacite.size();i++) {
+			for (int j = 0;j<this.capacite.size();j++) {
+				if(this.get_capacite(i, j) !=null) this.set_adj(i,j,1);
+			}
+		}
 	}
 	
 
@@ -137,7 +202,6 @@ public class Reseau {
 				G.flot.get(0).set(i, capa);
 				//f(u,source) = 0
 				G.flot.get(i).set(0, -capa);
-				
 				G.sommets.get(i).excedent=capa;
 				G.sommets.get(0).excedent = G.sommets.get(0).excedent - capa; 
 			}
@@ -159,43 +223,77 @@ public class Reseau {
 	void elever(Reseau res_resi,Sommet u) {
 		ArrayList<Integer> h_list = new ArrayList<Integer>();
 		for (int i = 0; i<this.sommets.size();i++) {
-			if(this.get_capacite(this.sommets.indexOf(u), i) != null) h_list.add(this.sommets.get(i).hauteur);
+			if(res_resi.get_adj(this.sommets.indexOf(u), i) == 1)  h_list.add(this.sommets.get(i).hauteur);
 		}
 		int min = Collections.min(h_list);
+		//System.out.println("Sommet "+u.toString()+": " + h_list.toString());
 		u.hauteur = 1 + min;
+		//System.out.println("Nouvelle hauteur: " + u.hauteur);
 	}
 	
 	//Algorithme des preflots
-	//TODO : debug de update_resi
-	void preflot(Reseau graphe, Sommet source, Sommet puits) {
+	static void preflot(Reseau graphe, Sommet source, Sommet puits) {
+		boolean fin = false;
+		boolean av = false;
+		boolean el = false;
+		boolean not_sup = false;
+		int size = graphe.sommets.size();
 		initialiser_preflot(graphe, source);
+		graphe.maj_adj();
+		
+		//System.out.println(graphe.toString());
+		
 		Reseau residuel = graphe.create_resi();
+		System.out.println(residuel.toString());
 		int  i=0;
 		Sommet u = graphe.sommets.get(i); 
-		while(u != null) { //tq une operation est applicable
-			if(u.excedent>0) {
-				int index_u = graphe.sommets.indexOf(u);
-				//avancer
-				for (int index_v = 0;index_v<graphe.sommets.size();index_v++) {
-					Sommet v = graphe.sommets.get(index_v);
-					if((graphe.get_capacite(u, v)!= null) && (graphe.get_capacite(u, v) > 0) && (u.hauteur == v.hauteur+1)) {
-						graphe.avancer(residuel,u,v); //precondition: excedent de u>0, capacite uv>0, hauteur u = hauteur de v +1
-						residuel = graphe.update_resi(residuel,index_u,index_v);
-					}
-				} 
-				//elever
-				if (u != source && u != puits){ //u different de source et puis
-					for(int index_v=0;index_v<graphe.sommets.size();index_v++) {
-						Sommet v= graphe.sommets.get(index_v) ;
-						if((residuel.get_capacite(u, v)!=null) && (u.hauteur <= v.hauteur)) {
-							graphe.elever(residuel,u); //precondition: excedent de u>0 et pour tout arc (u,v) v adjacent a u ds reseau residuel, hauteur de u <= hauteur de v
-						}
-					}
+		
+		while (!fin) {
+			av = false;
+			el = false;
+			int index_v = 0;
+			int index_u = graphe.sommets.indexOf(u);
+			while (!av && index_v <size) {
+				Sommet v = graphe.sommets.get(index_v);
+				//System.out.print("[ "+index_u +","+ index_v +" ] ");
+				if((u.excedent > 0) && residuel.get_adj(index_u, index_v) == 1 && (residuel.get_capacite(index_u, index_v) > 0) && (u.hauteur == v.hauteur+1)) {
+					//System.out.print("("+ residuel.get_capacite(index_u,index_v)+") ");
+					graphe.avancer(residuel,u,v); //precondition: excedent de u>0, capacite uv>0, hauteur u = hauteur de v +1
+					//System.out.println("[ "+index_u + ","+ index_v+" ]"+ " flot : "+graphe.get_flot(u, v));
+					//System.out.println(graphe.toString());
+					residuel = graphe.update_resi(residuel,index_u,index_v);
+					//System.out.println("Residuel:\n"+residuel.toString()+"\n-----------------------------------\n");
+					av = true;
+					//System.out.println("("+ residuel.get_capacite(index_u,index_v)+")");
+					
 				}
-			} else {
-				i++;
-				u=graphe.sommets.get(i);
+				index_v++;
+				
 			}
+			index_v = 0;
+			if (!av && u!= source && u!= puits && u.excedent > 0) {
+				not_sup = false;
+				while(!not_sup && index_v < size) {
+					Sommet v = graphe.sommets.get(index_v);
+					if (residuel.get_adj(index_u, index_v) == 1 && (u.hauteur > v.hauteur)) {
+						not_sup = true;
+					}
+					if (index_v == size-1) {
+						graphe.elever(residuel,u); //precondition: excedent de u>0 et pour tout arc (u,v) v adjacent a u ds reseau residuel, hauteur de u <= hauteur de v
+						el = true;
+					}
+					index_v++;
+				}
+			}
+			if (!av && !el) {
+				i++;
+				u = graphe.sommets.get(i);
+			} else if (av || el) {
+				i = 0;
+				u = graphe.sommets.get(i);
+			}
+			if (i == size-1 && !av && !el) fin = true;
+			
 		}
 	}
 	
@@ -358,11 +456,11 @@ public class Reseau {
 						s_ligne += t_i;
 						s_col[i] += t_i;
 						// ajout min, capacite sur les arcs partantdes sommes des lignes vers les valeurs mij de la matrice
-						r.min.get(m_ligne).set((nbli)*m_ligne+1+i, (int) Math.floor(t_i));
-						r.capacite.get(m_ligne).set((nbli)*m_ligne+1+i, (int) Math.ceil(t_i));
+						r.min.get(m_ligne).set((nbli+1)+(nbcol)*(m_ligne-1)+i, (int) Math.floor(t_i));
+						r.capacite.get(m_ligne).set((nbli+1)+(nbcol)*(m_ligne-1)+i, (int) Math.ceil(t_i));
 						// ajout min,capacite sur les arcs partant des valeurs mij de la matrice vers les sommes des colonnes
-						r.min.get((nbli)*m_ligne+1+i).set((size-1)-nbcol+i, (int) Math.floor(t_i));
-						r.capacite.get((nbli)*m_ligne+1+i).set((size-1)-nbcol+i, (int) Math.ceil(t_i));
+						r.min.get((nbli+1)+(nbcol)*(m_ligne-1)+i).set((size-1)-nbcol+i, (int) Math.floor(t_i));
+						r.capacite.get((nbli+1)+(nbcol)*(m_ligne-1)+i).set((size-1)-nbcol+i, (int) Math.ceil(t_i));
 					}
 					// ajout min, capacite sur les arcs partant de la source sur les sommes des lignes
 					r.min.get(0).set(m_ligne, (int) Math.floor(s_ligne));
@@ -397,7 +495,11 @@ public class Reseau {
 		if(this.capacite.size()!=0) {
 			res = res + "\n\nMatrice capacite:\n";
 			for(int i=0;i<this.capacite.size();i++) {
-				res = res + this.capacite.get(i).toString() + "\n";
+				for (int j = 0;j<this.capacite.size();j++) {
+					if (this.get_capacite(i, j) == null) res = res + "n ";
+					else res = res + this.get_capacite(i, j) + " ";
+				}
+				res = res + "\n";
 			}
 		}
 		
@@ -412,6 +514,12 @@ public class Reseau {
 			res = res + "\n\nMatrice min:\n";
 			for(int i=0;i<this.min.size();i++) {
 				res = res + this.min.get(i).toString() + "\n";
+			}
+		}
+		if(this.adjacence.size()!=0) {
+			res = res + "\n\nMatrice adj:\n";
+			for(int i=0;i<this.adjacence.size();i++) {
+				res = res + this.adjacence.get(i).toString() + "\n";
 			}
 		}
 		
