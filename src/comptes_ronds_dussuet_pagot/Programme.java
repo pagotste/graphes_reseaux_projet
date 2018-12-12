@@ -57,15 +57,20 @@ public class Programme {
 		//System.out.println(Reseau.constructionReseau("dataset_exemple.txt").toString());
 
 		//Test avec l'exemple
-//		Reseau exercice = Reseau.constructionReseau("dataset_exemple.txt");
-//		exercice.constructionEtape3();
-//		exercice.constructionEtape2();
-//		exercice.constructionEtape1(6);
-//		exercice.flot = Reseau.init_matrix(exercice.flot,exercice.sommets.size());
-//		exercice.adjacence = Reseau.init_matrix_zero(exercice.adjacence,exercice.sommets.size());
-//		
-//		Reseau.preflot(exercice, exercice.sommets.get(0), exercice.sommets.get(exercice.sommets.size()-1));
-//		System.out.println(exercice.toString());
+		Reseau exercice = Reseau.constructionReseau("dataset_exemple.txt");
+		exercice.constructionEtape3();
+		exercice.constructionEtape2();
+		int somme = 0;
+		for(int i = 0; i < exercice.sommets.size()-1;i++) {
+			int demande = exercice.sommets.get(i).demande;
+			somme += (demande>0) ? demande : 0 ;
+		}
+		exercice.constructionEtape1(somme);
+		exercice.flot = Reseau.init_matrix(exercice.flot,exercice.sommets.size());
+		exercice.adjacence = Reseau.init_matrix_zero(exercice.adjacence,exercice.sommets.size());
+		//System.out.println(exercice.toString());
+		Reseau.preflot(exercice, exercice.sommets.get(0), exercice.sommets.get(exercice.sommets.size()-1));
+		System.out.println(exercice.toString());
 		
 		/*
 		Reseau test = Reseau.constructionReseau("dataset_exemple.txt");
