@@ -8,7 +8,7 @@ public class Programme {
 	static public String resultats(Reseau r) {
 		int size = r.sommets.size();
 		String res = "";
-		res = res+"Résultats des arrondis\n";
+		res = res+"Rï¿½sultats des arrondis\n";
 		
 		for(int k = 0 ; k < nbli;k++) {
 			for(int t= 0; t < nbcol; t++) {
@@ -27,7 +27,33 @@ public class Programme {
 		
 		return res;
 	}
-	
+	static public boolean test_probleme(Reseau r) {
+		int size = r.sommets.size();
+		boolean test = true;
+		int k = 0;
+		int[] somme_col = new int[nbcol];
+		while(test && (k<nbli)) {
+			int somme = 0;
+			for(int j = 0; j < nbcol; j++) {
+				somme += r.get_min(k+1, nbli+1+j)+r.get_flot(k+2, nbli+2+j);
+				somme_col[j] += r.get_min(k+1, nbli+1+j)+r.get_flot(k+2, nbli+2+j);
+			}
+			if(somme != (r.get_min(0,k+1)+r.get_flot(1, k+2))) {
+				test=false;
+			}
+			k++;
+		}
+		k = 0;
+		while(test && (k<nbcol)) {
+			if(somme_col[k] != (r.get_min(nbli+1+k,size-4)+r.get_flot(nbli+2+k, size-3))) {
+				test = false;
+			}
+			k++;
+		}
+		
+		return test;
+	}
+
 	public static void main(String[] args) {
 		
 		//Graphe de test
