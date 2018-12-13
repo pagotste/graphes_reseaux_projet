@@ -99,7 +99,7 @@ public class Programme {
 //		System.out.println(exercice.toString());
 		
 		
-		Reseau test = Reseau.constructionReseau("dataset2.txt");
+		Reseau test = Reseau.constructionReseau("dataset1.txt");
 		//System.out.println(test.toString());
 		//System.out.println((Integer)1 == (Integer)null);
 		test.constructionEtape3();

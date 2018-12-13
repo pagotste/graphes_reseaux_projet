@@ -204,11 +204,12 @@ public class Reseau {
 	
 	//Avance le flot sur un arc dans le graphe
 	void avancer(Reseau res_resi,Sommet u, Sommet v) {
+		//System.out.println()
 		int index_u = this.sommets.indexOf(u);
 		int index_v = this.sommets.indexOf(v);
 		int df = Math.min(u.excedent,res_resi.get_capacite(index_u, index_v));
-		this.set_flot(u, v, this.get_flot(u,v) + df);
 		this.set_flot(v, u, -this.get_flot(u, v));
+		this.set_flot(u, v, this.get_flot(u,v) + df);
 		u.excedent = u.excedent - df;
 		v.excedent = v.excedent + df;
 	}
