@@ -9,7 +9,7 @@ public class Programme {
 	static public String resultats(Reseau r) {
 		int size = r.sommets.size();
 		String res = "";
-		res = res+"R�sultats des arrondis\n";
+		res = res+"Resultats des arrondis\n";
 		
 		for(int k = 0 ; k < nbli;k++) {
 			for(int t= 0; t < nbcol; t++) {
@@ -21,7 +21,7 @@ public class Programme {
 		for (int i = 1; i < nbli+1;i++) {
 			res = res + "ligne " + i + " : " + (r.get_min(0,i)+r.get_flot(1, 1+i) + "\n");
 		}
-		res = res + " sommes des colonnes arrondies :\n";
+		res = res + "Sommes des colonnes arrondies :\n";
 		for (int j = 0; j < nbcol;j++) {
 			res = res + "colonne " + (j+1) + " : " + (r.get_min(nbli+1+j, size-4)+ r.get_flot(nbli+2+j, size-3)) + "\n";
 		}
