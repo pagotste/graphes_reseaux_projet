@@ -332,7 +332,6 @@ public class Reseau {
 
 	void constructionEtape3() {
 		int size = this.sommets.size();
-		int d_source = 0;
 		int d_puits = 0;
 		for (int i=1; i<size-1;i++) {
 			Integer cap = this.get_capacite(0, i);
@@ -340,7 +339,7 @@ public class Reseau {
 				int min = this.get_min(0, i);
 				this.set_capacite(0, i, cap-min);
 				this.sommets.get(i).demande -= min;
-				d_source += this.get_capacite(0, i);
+				Programme.d_source_max += this.get_capacite(0, i);
 			}
 		}
 		
@@ -371,10 +370,10 @@ public class Reseau {
 			this.set_capacite(0, size-1, cap-min);
 			// nouvelle valeur de la capacite
 			cap = this.get_capacite(0, size-1);
-			d_source += cap;
+			Programme.d_source_max += cap;
 			d_puits += cap;
 		}
-		this.sommets.get(0).demande = -d_source;
+		this.sommets.get(0).demande = -1;
 		this.sommets.get(size-1).demande = d_puits;
 	}
 	
