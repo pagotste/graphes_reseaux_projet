@@ -4,6 +4,7 @@ package comptes_ronds_dussuet_pagot;
 public class Programme {
 	public static int nbli;
 	public static int nbcol;
+	public static int d_source_max;
 	
 	static public String resultats(Reseau r) {
 		int size = r.sommets.size();
@@ -140,8 +141,21 @@ public class Programme {
 		test.flot = Reseau.init_matrix(test.flot,test.sommets.size());
 		test.adjacence = Reseau.init_matrix_zero(test.adjacence,test.sommets.size());
 		Reseau.preflot(test, test.sommets.get(0), test.sommets.get(test.sommets.size()-1));
-		System.out.println(test.toString());
-		System.out.println(resultats(test));
+		/*System.out.println(test.toString());
+		System.out.println(resultats(test));*/
+		
+		
+		int i = 1;
+		while(!test_probleme(test) && i<d_source_max) {
+			test.set_capacite(0, 1, i+1);
+			Reseau.preflot(test, test.sommets.get(0), test.sommets.get(test.sommets.size()-1));
+			System.out.println(test.toString());
+			System.out.println(resultats(test));
+			i++;
+		}
+//		if(i == d_source_max) {
+//			
+//		}
 		//Programme de jeux de données
 				/*
 				if(args.length==0) {
