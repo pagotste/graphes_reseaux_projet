@@ -34,7 +34,7 @@ public class Reseau {
 		}
 		return liste;
 	}
-	
+	//Remplit une matrice de 0
 	static ArrayList <ArrayList<Integer>> init_matrix_zero(ArrayList <ArrayList<Integer>> liste, int size) {
 		for (int i = 0; i <size;i++) {
 			liste.add(new ArrayList<Integer>());
@@ -64,7 +64,6 @@ public class Reseau {
 	
 	//Met a jour un reseau residuel
 	Reseau update_resi(Reseau res_resi, int u, int v){
-		//int new_c = res_resi.get_capacite(u, v)-this.get_flot(u, v);
 		if(this.get_flot(u, v) == res_resi.get_capacite(u, v)) { //ex: 12/12
 			res_resi.set_capacite(u, v, 0);
 			res_resi.set_adj(u,v,0);
@@ -142,10 +141,6 @@ public class Reseau {
 		this.flot.get(this.sommets.indexOf(u)).set(this.sommets.indexOf(v), flot);
 	}
 	
-//	Integer get_capacite(Sommet u, Sommet v) {
-//		return this.capacite.get(this.capacite.indexOf(u)).get(this.capacite.indexOf(v));
-//	}
-	
 	void set_capacite(Sommet u, Sommet v, Integer capacite) {
 		this.capacite.get(this.sommets.indexOf(u)).set(this.sommets.indexOf(v), capacite);
 	}
@@ -165,8 +160,7 @@ public class Reseau {
 		this.adjacence.get(this.sommets.indexOf(u)).set(this.sommets.indexOf(v), adj);
 	}
 	
-	//Temporaire
-	//TODO : ajouter aux constructions reseau
+	//Met a jour la matrice d'adjacence d'un reseau
 	void maj_adj() {
 		for (int i = 0; i<this.capacite.size();i++) {
 			for (int j = 0;j<this.capacite.size();j++) {
@@ -226,9 +220,7 @@ public class Reseau {
 			if(res_resi.get_adj(this.sommets.indexOf(u), i) == 1)  h_list.add(this.sommets.get(i).hauteur);
 		}
 		int min = Collections.min(h_list);
-		//System.out.println("Sommet "+u.toString()+": " + h_list.toString());
 		u.hauteur = 1 + min;
-		//System.out.println("Nouvelle hauteur: " + u.hauteur);
 	}
 	
 	//Algorithme des preflots
@@ -239,12 +231,8 @@ public class Reseau {
 		boolean not_sup = false;
 		int size = graphe.sommets.size();
 		initialiser_preflot(graphe, source);
-		graphe.maj_adj();
-		
-		//System.out.println(graphe.toString());
-		
+		graphe.maj_adj();	
 		Reseau residuel = graphe.create_resi();
-		System.out.println(residuel.toString());
 		int  i=0;
 		Sommet u = graphe.sommets.get(i); 
 		
@@ -255,17 +243,10 @@ public class Reseau {
 			int index_u = graphe.sommets.indexOf(u);
 			while (!av && index_v <size) {
 				Sommet v = graphe.sommets.get(index_v);
-				//System.out.print("[ "+index_u +","+ index_v +" ] ");
 				if((u.excedent > 0) && residuel.get_adj(index_u, index_v) == 1 && (residuel.get_capacite(index_u, index_v) > 0) && (u.hauteur == v.hauteur+1)) {
-					//System.out.print("("+ residuel.get_capacite(index_u,index_v)+") ");
 					graphe.avancer(residuel,u,v); //precondition: excedent de u>0, capacite uv>0, hauteur u = hauteur de v +1
-					//System.out.println("[ "+index_u + ","+ index_v+" ]"+ " flot : "+graphe.get_flot(u, v));
-					//System.out.println(graphe.toString());
 					residuel = graphe.update_resi(residuel,index_u,index_v);
-					//System.out.println("Residuel:\n"+residuel.toString()+"\n-----------------------------------\n");
-					av = true;
-					//System.out.println("("+ residuel.get_capacite(index_u,index_v)+")");
-					
+					av = true;					
 				}
 				index_v++;
 				
@@ -396,7 +377,6 @@ public class Reseau {
 		this.sommets.get(size-1).demande = d_puits;
 	}
 	
-	//TODO: import fichier + construction
 	//Construit le reseau modelisant le probleme Arrondis-2D comme un probleme d�arc-circulation a partir des donnees en entree
 	static Reseau constructionReseau(String nomfichier) {
 		//Variables
@@ -420,18 +400,19 @@ public class Reseau {
 				for (int i=1; i<nbli+1;i++) {
 					r.sommets.add(new Sommet("somme_l"+String.valueOf(i),0));
 				}
-				for (int i=1;i<nbli+1;i++) {
-					for(int j=1;j<nbcol+1;j++) {
-						r.sommets.add(new Sommet("m"+String.valueOf(i)+String.valueOf(j),0));
-					}
-				}
+//				for (int i=1;i<nbli+1;i++) {
+//					for(int j=1;j<nbcol+1;j++) {
+//						r.sommets.add(new Sommet("m"+String.valueOf(i)+String.valueOf(j),0));
+//					}
+//				}
 				for (int i=1; i<nbcol+1;i++) {
 					r.sommets.add(new Sommet("somme_c"+String.valueOf(i),0));
 				}
 				r.sommets.add(new Sommet("puits",0));
 				
 				
-				int size = nbli*nbcol+nbli+nbcol+2;
+				//int size = nbli*nbcol+nbli+nbcol+2;
+				int size = nbli+nbcol+2;
 				
 				r.min = Reseau.init_matrix(r.min,size);
 				r.capacite = Reseau.init_matrix(r.capacite,size);
@@ -455,12 +436,16 @@ public class Reseau {
 						float t_i = Float.parseFloat(t[i]);
 						s_ligne += t_i;
 						s_col[i] += t_i;
+						//V1
 						// ajout min, capacite sur les arcs partantdes sommes des lignes vers les valeurs mij de la matrice
-						r.min.get(m_ligne).set((nbli+1)+(nbcol)*(m_ligne-1)+i, (int) Math.floor(t_i));
-						r.capacite.get(m_ligne).set((nbli+1)+(nbcol)*(m_ligne-1)+i, (int) Math.ceil(t_i));
-						// ajout min,capacite sur les arcs partant des valeurs mij de la matrice vers les sommes des colonnes
-						r.min.get((nbli+1)+(nbcol)*(m_ligne-1)+i).set((size-1)-nbcol+i, (int) Math.floor(t_i));
-						r.capacite.get((nbli+1)+(nbcol)*(m_ligne-1)+i).set((size-1)-nbcol+i, (int) Math.ceil(t_i));
+//						r.min.get(m_ligne).set((nbli+1)+(nbcol)*(m_ligne-1)+i, (int) Math.floor(t_i));
+//						r.capacite.get(m_ligne).set((nbli+1)+(nbcol)*(m_ligne-1)+i, (int) Math.ceil(t_i));
+//						// ajout min,capacite sur les arcs partant des valeurs mij de la matrice vers les sommes des colonnes
+//						r.min.get((nbli+1)+(nbcol)*(m_ligne-1)+i).set((size-1)-nbcol+i, (int) Math.floor(t_i));
+//						r.capacite.get((nbli+1)+(nbcol)*(m_ligne-1)+i).set((size-1)-nbcol+i, (int) Math.ceil(t_i));
+						//V2
+						r.min.get(m_ligne).set((nbli+1)+i, (int) Math.floor(t_i));
+						r.capacite.get(m_ligne).set((nbli+1)+i, (int) Math.ceil(t_i));
 					}
 					// ajout min, capacite sur les arcs partant de la source sur les sommes des lignes
 					r.min.get(0).set(m_ligne, (int) Math.floor(s_ligne));

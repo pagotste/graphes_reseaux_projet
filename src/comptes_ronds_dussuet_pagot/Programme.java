@@ -5,29 +5,29 @@ public class Programme {
 	public static int nbli;
 	public static int nbcol;
 	
-	public String resultats(Reseau r) {
+	static public String resultats(Reseau r) {
 		int size = r.sommets.size();
 		String res = "";
-		res = res+"Résultats des arrondis\n";
+		res = res+"R�sultats des arrondis\n";
 		
-		res = res + "[ ";
-		
-		for(int k = 1 ; k < nbli+1;k++) {
+		for(int k = 0 ; k < nbli;k++) {
 			for(int t= 0; t < nbcol; t++) {
-				res = res + (r.get_min(1+k, nbli+2*k+t)+r.get_flot(1+k, nbli+2*k+t)) +" ";
+				res = res + (r.get_min(k+1, nbli+1+t)+r.get_flot(k+2, nbli+2+t)) +" ";
 			}
+			res = res + "\n";
 		}
-		res = res + " sommes des lignes arrondies :\n";
+		res = res + "\nSommes des lignes arrondies :\n";
 		for (int i = 1; i < nbli+1;i++) {
-			res = res + "ligne " + i + " :" + (r.get_min(1, 1+i)+ r.get_flot(1, 1+i)) + "\n";
+			res = res + "ligne " + i + " : " + (r.get_min(0,i)+r.get_flot(1, 1+i) + "\n");
 		}
 		res = res + " sommes des colonnes arrondies :\n";
-		for (int j = 1; j < nbcol+1;j++) {
-			res = res + "colonne " + j + " :" + (r.get_min(size-4-nbcol+j, size-3)+ r.get_flot(size-4-nbcol+j, size-3)) + "\n";
+		for (int j = 0; j < nbcol;j++) {
+			res = res + "colonne " + (j+1) + " : " + (r.get_min(nbli+1+j, size-4)+ r.get_flot(nbli+2+j, size-3)) + "\n";
 		}
 		
 		return res;
 	}
+	
 	public static void main(String[] args) {
 		
 		//Graphe de test
@@ -83,25 +83,25 @@ public class Programme {
 		//System.out.println(Reseau.constructionReseau("dataset_exemple.txt").toString());
 
 		//Test avec l'exemple
-		Reseau exercice = Reseau.constructionReseau("dataset_exemple.txt");
-		exercice.constructionEtape3();
-		exercice.constructionEtape2();
-		int somme = 0;
-		for(int i = 0; i < exercice.sommets.size()-1;i++) {
-			int demande = exercice.sommets.get(i).demande;
-			somme += (demande>0) ? demande : 0 ;
-		}
-		exercice.constructionEtape1(somme);
-		exercice.flot = Reseau.init_matrix(exercice.flot,exercice.sommets.size());
-		exercice.adjacence = Reseau.init_matrix_zero(exercice.adjacence,exercice.sommets.size());
-		//System.out.println(exercice.toString());
-		Reseau.preflot(exercice, exercice.sommets.get(0), exercice.sommets.get(exercice.sommets.size()-1));
-		System.out.println(exercice.toString());
+//		Reseau exercice = Reseau.constructionReseau("dataset_exemple.txt");
+//		exercice.constructionEtape3();
+//		exercice.constructionEtape2();
+//		int somme = 0;
+//		for(int i = 0; i < exercice.sommets.size()-1;i++) {
+//			int demande = exercice.sommets.get(i).demande;
+//			somme += (demande>0) ? demande : 0 ;
+//		}
+//		exercice.constructionEtape1(somme);
+//		exercice.flot = Reseau.init_matrix(exercice.flot,exercice.sommets.size());
+//		exercice.adjacence = Reseau.init_matrix_zero(exercice.adjacence,exercice.sommets.size());
+//		//System.out.println(exercice.toString());
+//		Reseau.preflot(exercice, exercice.sommets.get(0), exercice.sommets.get(exercice.sommets.size()-1));
+//		System.out.println(exercice.toString());
 		
-		/*
-		Reseau test = Reseau.constructionReseau("dataset_exemple.txt");
-		System.out.println(test.toString());
-		System.out.println((Integer)1 == (Integer)null);
+		
+		Reseau test = Reseau.constructionReseau("dataset2.txt");
+		//System.out.println(test.toString());
+		//System.out.println((Integer)1 == (Integer)null);
 		test.constructionEtape3();
 		test.constructionEtape2();
 		// somme des demandes positives des sommets
@@ -111,7 +111,11 @@ public class Programme {
 			somme += (demande>0) ? demande : 0 ;
 		}
 		test.constructionEtape1(somme);
-		System.out.println(test.toString());*/
+		test.flot = Reseau.init_matrix(test.flot,test.sommets.size());
+		test.adjacence = Reseau.init_matrix_zero(test.adjacence,test.sommets.size());
+		Reseau.preflot(test, test.sommets.get(0), test.sommets.get(test.sommets.size()-1));
+		System.out.println(test.toString());
+		System.out.println(resultats(test));
 		//Programme de jeux de données
 				/*
 				if(args.length==0) {
