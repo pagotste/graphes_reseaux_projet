@@ -9,11 +9,11 @@ import java.lang.Math;
 
 public class Reseau {
 	
-	ArrayList<Sommet> sommets;
-	ArrayList <ArrayList<Integer>> min;
-	ArrayList <ArrayList<Integer>> capacite;
-	ArrayList <ArrayList<Integer>> flot;
-	ArrayList <ArrayList<Integer>> adjacence;
+	ArrayList<Sommet> sommets; // ensemble des sommets du graphe
+	ArrayList <ArrayList<Integer>> min;// matrice des minimum des arcs du graphe
+	ArrayList <ArrayList<Integer>> capacite;// matrice des capacites des arcs du graphe
+	ArrayList <ArrayList<Integer>> flot;// matrice des flots sur les arcs du graphe
+	ArrayList <ArrayList<Integer>> adjacence;// matrice d'adjacence representant les arcs du graphe
 	
 	//Constructeur
 	Reseau(){
@@ -204,7 +204,6 @@ public class Reseau {
 	
 	//Avance le flot sur un arc dans le graphe
 	void avancer(Reseau res_resi,Sommet u, Sommet v) {
-		//System.out.println()
 		int index_u = this.sommets.indexOf(u);
 		int index_v = this.sommets.indexOf(v);
 		int df = Math.min(u.excedent,res_resi.get_capacite(index_u, index_v));
@@ -283,13 +282,13 @@ public class Reseau {
 	void constructionEtape1(int v) {
 		// ajout du nouveau puits
 		this.sommets.add(new Sommet("puits_bis",0));
-		// ajout capacite du puits en colonne
+		// ajout capacite du puits en colonne dans la matrice capacite
 		for (int i=0;i<this.sommets.size()-2;i++){
 			this.capacite.get(i).add(null);
 		}
-		// ajout capacite sur arc paratant de l'ancien puits vers le nouveau
+		// ajout capacite sur arc partant de l'ancien puits vers le nouveau
 		this.capacite.get(this.sommets.size()-2).add(v);
-		// ajout dans capacite du puits en ligne
+		// ajout dans capacite du puits en ligne dans la matrice capacite
 		this.capacite.add(new ArrayList<Integer>());
 		for(int j = 0; j<this.sommets.size();j++) {
 			this.capacite.get(this.sommets.size()-1).add(null);
@@ -298,18 +297,20 @@ public class Reseau {
 	
 
 	void constructionEtape2() {
-		//ajout de la nouvelle source des demandes négatives
+		//ajout de la nouvelle source des demandes negatives
 		this.sommets.add(0, new Sommet("s_dem_neg",0));
 		
 		
-		// ajout capacite sur les arcs partant de la nouvelle source vers les autres sommets
+		/* ajout capacite sur les arcs partant de la nouvelle source 
+		 * vers les autres sommets qui ont une demande négative
+		 */
 		this.capacite.add(0,new ArrayList<Integer>());
 		for(int k = 1; k < this.sommets.size();k++) {
 			int demande = this.sommets.get(k).demande;
 			this.capacite.get(0).add((demande<0)? -demande : null );
 		}
 			
-		// ajout dans capacite de la nouvelle source en colonne
+		// ajout dans capacite de la nouvelle source en colonne dans la matrice capacite
 		for(int j = 0; j< this.sommets.size();j++) {
 			this.capacite.get(j).add(0,null);
 		}
@@ -317,12 +318,14 @@ public class Reseau {
 		// ajout du nouveau puits des demandes positives
 		this.sommets.add(new Sommet("s_dem_pos",0));
 		
-		// ajout capacite sur les arcs partant des sommets vers le nouveau puits
+		/* ajout capacite sur les arcs partant des sommets 
+		 * qui ont une demande positive vers le nouveau puits 
+		 */
 		for (int i=0;i<this.sommets.size()-1;i++){
 			int demande = this.sommets.get(i).demande;
 			this.capacite.get(i).add((demande>0)? demande : null);
 		}
-		// ajout dans capacite du nouveau puits en ligne
+		// ajout dans capacite du nouveau puits en ligne dans la matrice capacite
 		this.capacite.add(new ArrayList<Integer>());
 		for(int j = 0; j<this.sommets.size();j++) {
 			this.capacite.get(this.sommets.size()-1).add(null);
@@ -331,39 +334,67 @@ public class Reseau {
 	
 
 	void constructionEtape3() {
+		// nombre de sommets dans le graphe
 		int size = this.sommets.size();
 		int d_puits = 0;
+		// pour tous les sommets autre que la source et le puits
 		for (int i=1; i<size-1;i++) {
 			Integer cap = this.get_capacite(0, i);
+			/* si il y a une capacite non nulle ( donc 
+			 * un arc de la source au sommet i)
+			 */
 			if(cap != null) {
 				int min = this.get_min(0, i);
+				// on fait c(source,i) = c(source,i)- min(source,i)
 				this.set_capacite(0, i, cap-min);
+				// d(i) = d(i) - min(source,i)
 				this.sommets.get(i).demande -= min;
+				/* enregistrement dans Programme de la somme des 
+				 * capacites des arcs sortants de la source
+				 */
 				Programme.d_source_max += this.get_capacite(0, i);
 			}
 		}
-		
+		// Pour tous les sommets autre que la source et le puits
 		for (int i=1; i<size-1;i++) {
+			// Pour tous les sommets autre que la source et le puits
 			for(int j=1; j<size-1;j++) {
 				Integer cap = this.get_capacite(i, j);
+				/* si il y a une capacite non nulle ( donc 
+				 * un arc de i a j)
+				 */
 				if(cap != null) {
 					int min = this.get_min(i,j);
+					// c(i,j) = c(i,j) - min(i,j)
 					this.set_capacite(i, j, cap-min);
+					// d(i) = d(i) + min(i,j)
 					this.sommets.get(i).demande += min;
+					// d(j) = d(j) - min(i,j)
 					this.sommets.get(j).demande -= min;
 				}
 			}
 		}
+		// Pour tous les sommets autre que la source et le puits
 		for (int i=1; i<size-1;i++) {
 			Integer cap = this.get_capacite(i, size-1);
+			/* si il y a une capacite non nulle ( donc 
+			 * un arc de i a j)
+			 */
 			if(cap != null) {
 				int min = this.get_min(i, size-1);
+				// c(i,puits) = c(i,puits) - min(i,puits)
 				this.set_capacite(i, size-1, cap-min);
+				// d(i) = d(i) + min(i,puits)
 				this.sommets.get(i).demande += min;
+				/* calcul de la somme des 
+				 * capacites des arcs entrants du puits
+				 */
 				d_puits += this.get_capacite(i, size-1);
 			}
 		}
-		
+		/* si il existe un arc (source,puits)
+		 * on fait c(source,puits) = c(source,puits) - min(source,puits)
+		 */
 		Integer cap = this.get_capacite(0, size-1);
 		if(cap != null) {
 			int min = this.get_min(0, size-1);
@@ -373,11 +404,14 @@ public class Reseau {
 			Programme.d_source_max += cap;
 			d_puits += cap;
 		}
+		/*
+		 * definition des demandes du puits et de la source
+		 */
 		this.sommets.get(0).demande = -1;
 		this.sommets.get(size-1).demande = d_puits;
 	}
 	
-	//Construit le reseau modelisant le probleme Arrondis-2D comme un probleme d�arc-circulation a partir des donnees en entree
+	//Construit le reseau modelisant le probleme Arrondis-2D comme un probleme d arc-circulation a partir des donnees en entree
 	static Reseau constructionReseau(String nomfichier) {
 		//Variables
 			
@@ -396,36 +430,43 @@ public class Reseau {
 				
 				
 				// ajout des sommets dans le graphe
+				// ajout de la source
 				r.sommets.add(new Sommet("source",0));
+				// ajout des sommes des lignes de la matrice de reels contenue dans le fichier
 				for (int i=1; i<nbli+1;i++) {
 					r.sommets.add(new Sommet("somme_l"+String.valueOf(i),0));
 				}
-//				for (int i=1;i<nbli+1;i++) {
-//					for(int j=1;j<nbcol+1;j++) {
-//						r.sommets.add(new Sommet("m"+String.valueOf(i)+String.valueOf(j),0));
-//					}
-//				}
+				// ajout des sommes des colonnes
 				for (int i=1; i<nbcol+1;i++) {
 					r.sommets.add(new Sommet("somme_c"+String.valueOf(i),0));
 				}
+				// ajout du puits
 				r.sommets.add(new Sommet("puits",0));
 				
-				
-				//int size = nbli*nbcol+nbli+nbcol+2;
+				// nombre de sommets dans le graphe
 				int size = nbli+nbcol+2;
 				
+				// initialisation des matrices capacite et min du graphe 
 				r.min = Reseau.init_matrix(r.min,size);
 				r.capacite = Reseau.init_matrix(r.capacite,size);
 				String ligne;
 				// le numéro de la première ligne 
 				int m_ligne = 1;
+				// lecture de la premiere ligne du fichier
 				ligne = b.readLine();
+				/* on remplace les , par des points . pour la conversion
+				 * des chaines de caracteres en float par la suite
+				 */
 				ligne = ligne.replace(",", ".");
 				// initialisation d'un  tableau de somme des colonnes 
 				float[] s_col = new float[nbcol];
 				
 				
 				// ajout des min, capacite sur les arcs du graphe
+				/*tant que le fichier n est pas fini et que on n a pas lu un point
+				 *  qui est cense indique que la matrice a ete lue entierement 
+				 *  on continue a lire
+				 */
 				while( !ligne.equals(".") && (ligne != null)  ) {
 					// récupération des valeurs séparées par un ou plusieurs espaces dans un tableau de chaînes de caractères
 					String[] t = ligne.split("\\s+");
@@ -433,21 +474,22 @@ public class Reseau {
 					float s_ligne = 0;
 					
 					for (int i = 0; i < t.length; i++) {
+						// on convertit en float
 						float t_i = Float.parseFloat(t[i]);
+						// on ajoute a la somme de la ligne m_ligne et a la somme de la colonne i
 						s_ligne += t_i;
 						s_col[i] += t_i;
-						//V1
-						// ajout min, capacite sur les arcs partantdes sommes des lignes vers les valeurs mij de la matrice
-//						r.min.get(m_ligne).set((nbli+1)+(nbcol)*(m_ligne-1)+i, (int) Math.floor(t_i));
-//						r.capacite.get(m_ligne).set((nbli+1)+(nbcol)*(m_ligne-1)+i, (int) Math.ceil(t_i));
-//						// ajout min,capacite sur les arcs partant des valeurs mij de la matrice vers les sommes des colonnes
-//						r.min.get((nbli+1)+(nbcol)*(m_ligne-1)+i).set((size-1)-nbcol+i, (int) Math.floor(t_i));
-//						r.capacite.get((nbli+1)+(nbcol)*(m_ligne-1)+i).set((size-1)-nbcol+i, (int) Math.ceil(t_i));
-						//V2
+						/* on ajoute la valeur arrondie inferieurement et superieument de t_i sur l'arc (somme ligne m_ligne, somme colonne i)
+						 * dans les matrices min et capacite
+						 */
+						// arrondi inferieur
 						r.min.get(m_ligne).set((nbli+1)+i, (int) Math.floor(t_i));
+						// arrondi superieur
 						r.capacite.get(m_ligne).set((nbli+1)+i, (int) Math.ceil(t_i));
 					}
-					// ajout min, capacite sur les arcs partant de la source sur les sommes des lignes
+					/* ajout des arrondis inferieurs et superieurs de la somme ligne m_ligne sur l'arc (source,somme ligne m_ligne)
+					 * dans les matrices min et capacite
+					 */
 					r.min.get(0).set(m_ligne, (int) Math.floor(s_ligne));
 					r.capacite.get(0).set(m_ligne, (int) Math.ceil(s_ligne));
 					// passage à la ligne suivante et lecture de la ligne suivante
@@ -455,7 +497,9 @@ public class Reseau {
 					ligne = ligne.replace(",", ".");
 					m_ligne++;
 				}
-				// ajout min, capacite sur les arcs partant des sommes des colonnes vers le puits
+				/* ajout des arrondis inferieurs et superieurs des sommes colonnes sur les arcs (sommes colonnes,puits)
+				 * dans les matrices min et capacite
+				 */
 				for(int i = 0; i<nbcol;i++) {
 					r.min.get((size-1)-nbcol+i).set(size-1,(int) Math.floor(s_col[i]));
 					r.capacite.get((size-1)-nbcol+i).set(size-1,(int) Math.ceil(s_col[i]));
@@ -467,10 +511,11 @@ public class Reseau {
 			}catch (IOException e) {
 				e.printStackTrace();
 			}
-		// retourne le réseau construit avec les données du fichier si pas d'erreur sinon un réseau vide
+		// retourne le réseau construit avec les données du fichier si pas d'erreur 
 		return r;
 	}
 	
+	// redefinition de toString() pour l'objet Reseau
 	@Override
 	public String toString() {
 		String res = "";
