@@ -14,6 +14,7 @@ public class Sommet implements Cloneable{
 		this.excedent = 0;
 	}
 	
+	// fonction d'affichage d'un sommet
 	@Override
 	public String toString() {
 		return "[ "+this.nom+", d="+this.demande+ ", h= "+this.hauteur+", exe = "+this.excedent+ " ]";
@@ -27,19 +28,5 @@ public class Sommet implements Cloneable{
 	    }
 	}
 	
-	@Override
-	public boolean equals(Object obj) {
-		if(this == obj) {
-			return true;
-		}
-		if(obj == null) {
-			return false;
-		}
-		if(getClass() != obj.getClass()) {
-			return false;
-		}
-		Sommet s = (Sommet) obj;
-		return this.nom.equals(s.nom) && this.demande == s.demande && this.hauteur == s.hauteur && this.excedent == s.excedent;
-	}
 }
 
